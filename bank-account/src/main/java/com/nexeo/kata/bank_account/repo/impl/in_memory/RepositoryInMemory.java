@@ -29,7 +29,7 @@ public abstract class RepositoryInMemory<T extends BaseEntity> implements Reposi
 	private static Logger log = LoggerFactory.getLogger(RepositoryInMemory.class);
 
 	protected final List<T> entities = new ArrayList<>();
-
+	
 	protected Integer nextId() {
 		return 1 + entities.size();
 	}

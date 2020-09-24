@@ -1,7 +1,6 @@
 package com.nexeo.kata.bank_account.repo.impl.in_memory;
 
 import java.util.List;
-import java.util.concurrent.CompletableFuture;
 import java.util.stream.Collectors;
 
 import org.apache.commons.lang3.SerializationUtils;
@@ -20,9 +19,9 @@ public class TransactionsRepositoryInMemory extends RepositoryInMemory<Transacti
 		 * Sort entries by descending date asynchronously to keep the repository#get() simple and fast in this "poc" mode.
 		 * In a real world app we'd have a database and fetching sorted results won't be an issue.
 		 */
-		CompletableFuture.runAsync(() -> {
-			entities.sort((tx1, tx2) -> tx1.getDate().compareTo(tx2.getDate()));
-		});
+//		CompletableFuture.runAsync(() -> {
+			entities.sort((tx1, tx2) -> -tx1.getDate().compareTo(tx2.getDate()));
+//		});
 		return result;
 	}
 	
@@ -32,8 +31,7 @@ public class TransactionsRepositoryInMemory extends RepositoryInMemory<Transacti
 		/*
 		 * Here we suppose account exists and that offset is coherent with current data volume. 
 		 */
-		
-		return entities.stream().filter(tx -> tx.getAccount().getId() == account.getId()).skip(offset).limit(size)
-				.map(SerializationUtils::clone).collect(Collectors.toList());
+			return entities.stream().filter(tx -> tx.getAccount().getId().intValue() == account.getId().intValue()).skip(offset).limit(size)
+					.map(SerializationUtils::clone).collect(Collectors.toList());
 	}
 }

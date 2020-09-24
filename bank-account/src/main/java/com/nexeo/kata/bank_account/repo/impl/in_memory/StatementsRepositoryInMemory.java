@@ -16,18 +16,20 @@ public class StatementsRepositoryInMemory extends RepositoryInMemory<Statement>i
 	public Statement add(Statement entity) throws DataAccessException {
 		Statement result = super.add(entity);
 		/*
-		 * Sort entries by descending date asynchronously to keep the repository#get() simple and fast in this "poc" mode.
-		 * In a real world app we'd have a database and fetching sorted results won't be an issue.
+		 * Sort entries by descending date asynchronously to keep the
+		 * repository#get() simple and fast in this "poc" mode. In a real world
+		 * app we'd have a database and fetching sorted results won't be an
+		 * issue.
 		 */
-		CompletableFuture.runAsync(() -> {
-			entities.sort((st1, st2) -> st1.getDate().compareTo(st2.getDate()));
-		});
+//		CompletableFuture.runAsync(() -> {
+			entities.sort((st1, st2) -> -st1.getDate().compareTo(st2.getDate()));
+//		});
 		return result;
 	}
 
 	@Override
 	public Statement get(Account account) throws DataAccessException {
-		return entities.stream().filter(s -> s.getAccount().getId() == account.getId())
+		return entities.stream().filter(s -> s.getAccount().getId().intValue() == account.getId().intValue())
 				.map(SerializationUtils::clone).findFirst()
 				/* already sorted by descending date order */.orElseThrow(() -> new NotFoundEntityException());
 	}

@@ -61,7 +61,7 @@ public class AccountsService {
 			accountsRepository.add(account);
 			statementsRepository.add(new Statement(account, 0.0, LocalDateTime.now()));
 		} catch (DataAccessException e) {
-			log.error("Error creating account {}", account);
+			log.error("Error creating account {}", account, e);
 			throw new ServiceException(e);
 		}
 	}
@@ -89,7 +89,7 @@ public class AccountsService {
 			BigDecimal newBalance = BigDecimal.valueOf(statement.getBalance()).add(BigDecimal.valueOf(amount));
 			statementsRepository.add(new Statement(account, newBalance.doubleValue(), LocalDateTime.now()));						
 		} catch (DataAccessException e) {
-			log.error("Error performing deposit  for account {}", account);
+			log.error("Error performing deposit  for account {}", account, e);
 			throw new ServiceException(e);
 		}
 	}
@@ -119,7 +119,7 @@ public class AccountsService {
 			BigDecimal newBalance = BigDecimal.valueOf(statement.getBalance()).subtract(BigDecimal.valueOf(amount));
 			statementsRepository.add(new Statement(account, newBalance.doubleValue(), LocalDateTime.now()));						
 		} catch (DataAccessException e) {
-			log.error("Error performing withdrawal for account {}", account);
+			log.error("Error performing withdrawal for account {}", account, e);
 			throw new ServiceException(e);
 		}
 	}
@@ -136,7 +136,7 @@ public class AccountsService {
 		try {
 			return statementsRepository.get(account);
 		} catch (DataAccessException e) {
-			log.error("Error retrieving statement for account {}", account);
+			log.error("Error retrieving statement for account {}", account, e);
 			throw new ServiceException(e);
 		}
 	}
@@ -155,7 +155,26 @@ public class AccountsService {
 		try {
 			return transactionsRepository.get(account, offset, size);
 		} catch (DataAccessException e) {
-			log.error("Error retrieving transactions history for account {}", account);
+			log.error("Error retrieving transactions history for account {}", account, e);
+			throw new ServiceException(e);
+		}
+	}
+	
+	public String getBalanceAndTransactionsHistory(Account account, int size) throws ServiceException {
+		try {
+			List<Transaction> txs = transactionsRepository.get(account, 0, size);
+			Statement statement = statementsRepository.get(account);
+			
+			StringBuilder sb = new StringBuilder();
+			
+			sb.append("Balance: ").append(statement.getBalance()).append(" on ").append(statement.getDate()).append("\n");
+			sb.append("Operations:\n");
+			for(Transaction tx: txs) {
+				sb.append(tx.getOperation()).append(" | ").append(tx.getAmount()).append(" | ").append(tx.getDate()).append("\n");
+			}
+			return sb.toString();
+		} catch (DataAccessException e) {
+			log.error("Error establishing account status for {}", account, e);
 			throw new ServiceException(e);
 		}
 	}
