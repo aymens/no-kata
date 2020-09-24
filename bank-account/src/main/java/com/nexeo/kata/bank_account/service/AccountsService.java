@@ -4,6 +4,8 @@ import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.List;
 
+import static org.apache.commons.lang3.StringUtils.leftPad;
+import static org.apache.commons.lang3.StringUtils.rightPad;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -166,11 +168,10 @@ public class AccountsService {
 			Statement statement = statementsRepository.get(account);
 			
 			StringBuilder sb = new StringBuilder();
-			
-			sb.append("Balance: ").append(statement.getBalance()).append(" on ").append(statement.getDate()).append("\n");
+			sb.append("\nBalance: ").append(statement.getBalance()).append(" on ").append(statement.getDate()).append("\n");
 			sb.append("Operations:\n");
 			for(Transaction tx: txs) {
-				sb.append(tx.getOperation()).append(" | ").append(tx.getAmount()).append(" | ").append(tx.getDate()).append("\n");
+				sb.append(rightPad(tx.getOperation().toString(), 10)).append(" | ").append(leftPad(tx.getAmount().toString(), 10)).append(" | ").append(tx.getDate()).append("\n");
 			}
 			return sb.toString();
 		} catch (DataAccessException e) {
